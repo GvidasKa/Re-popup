@@ -55,6 +55,12 @@ if(!class_exists('RePopup')) {
         {
             //enqueue scripts
             wp_enqueue_style('replugin-style', plugins_url('/assets/admin/replugin-style.css', __FILE__));
+            wp_enqueue_script('replugin-script', plugins_url('/assets/admin/replugin-script.js', __FILE__ ), array ( 'jquery' ), '1.0');
+            $arr = array(
+                'ajaxurl' => admin_url('admin-ajax.php')
+            );
+            wp_localize_script('replugin-script','obj',$arr );
+            wp_enqueue_script('replugin-script');
         }
 
     }
@@ -70,4 +76,31 @@ if(!class_exists('RePopup')) {
     //deactivation
     require_once plugin_dir_path(__FILE__) . 'inc/re-popup-deactivate.php';
     register_deactivation_hook(__FILE__, array('RePopupDeactivate', 'deactivate'));
+
+
+
+    add_action( 'wp_ajax_create_popup', 'create_popup' );
+
+    function create_popup() {
+        global $table_prefix, $wpdb; // wordpress database
+
+        $table_name = $table_prefix . 'repopup';
+
+        $data = array( 'title' => $_POST['title'], 'image' => $_POST['image'], 'text' => $_POST['text']);
+        $format = array('%s', '%s','%s');
+        $wpdb->insert($table_name, $data, $format);
+
+        $results = $wpdb->get_results("SELECT * FROM $table_name");
+        foreach($results as $result){
+            echo "<tr>
+            <td><input type=\"checkbox\"></td>
+            <td>{$result->ID}</td>
+            <td>{$result->title}</td>
+            <td><button>Edit</button></td>
+        </tr>";
+        }
+
+        wp_die(); // this is required to terminate immediately and return a proper response
+    }
+
 }

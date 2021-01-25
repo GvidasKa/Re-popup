@@ -15,10 +15,11 @@ class RePopupActivate
         if ($wpdb->get_var( "show tables like '$table_name'" ) != $table_name) {
             $charset_collate = $wpdb->get_charset_collate();
             $sql = "CREATE TABLE " . $table_name . "(
-             id INT(6),
+             ID int NOT NULL AUTO_INCREMENT,
              title VARCHAR(1000) NOT NULL,
              image VARCHAR(1000) NOT NULL,
-             text VARCHAR(1000) NOT NULL)
+             text VARCHAR(1000) NOT NULL,
+             PRIMARY KEY (ID));
             $charset_collate";
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
             dbDelta($sql);
