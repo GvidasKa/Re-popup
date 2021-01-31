@@ -27,7 +27,9 @@ if(!class_exists('RePopup')) {
 
         public function register()
         {
-            add_action('admin_enqueue_scripts', array($this, 'enqueue'));
+            add_action('admin_enqueue_scripts', array($this, 'admin_enqueue'));
+
+            add_action('wp_enqueue_scripts', array($this, 'public_enqueue'));
 
             add_action('admin_menu', array($this, 'add_admin_pages'));
 
@@ -51,7 +53,7 @@ if(!class_exists('RePopup')) {
 
         }
 
-        function enqueue()
+        function admin_enqueue()
         {
             //enqueue scripts
             wp_enqueue_style('replugin-style', plugins_url('/assets/admin/replugin-style.css', __FILE__));
@@ -62,7 +64,10 @@ if(!class_exists('RePopup')) {
             wp_localize_script('replugin-script','obj',$arr );
             wp_enqueue_script('replugin-script');
         }
-
+        function public_enqueue()
+        {
+            wp_enqueue_script('repopup', plugins_url('/assets/public/repopup.js', __FILE__ ), array ( 'jquery' ), '1.0');
+        }
     }
 
     $rePopup = new RePopup();
@@ -257,4 +262,23 @@ if(!class_exists('RePopup')) {
 
         wp_die(); // this is required to terminate immediately and return a proper response
     }
+
+
+
+
+        add_action('wp_footer', 'wpshout_action_example');
+        function wpshout_action_example() {
+            global $table_prefix, $wpdb; // wordpress database
+
+            $table_name = $table_prefix . 'repopup';
+
+            $results = $wpdb->get_row("SELECT * FROM $table_name WHERE ID = 1");
+            echo "<div class='exit--popup'>
+                    <img src='$results->image'>
+                    <h2>$results->title</h2>
+                    <p>$results->text</p>
+                  </div>";
+        }
+
+
 }

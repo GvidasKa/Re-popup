@@ -135,14 +135,27 @@ jQuery(document).ready(function($) {
         });
     }
     function updatePopup() {
-        var data = {
-            'action': 'update_popup',
-            'id': $('#edit--popup input[name="id"]').val(),
-            'title': $('#edit--popup input[name="title"]').val(),
-            'image': $('#edit--popup input[name="image"]').val(),
-            'text': $('#edit--popup textarea[name="text"]').val()
-        };
-        jQuery.post(ajaxurl, data, function (response) {
+
+        var fd = new FormData();
+        var id =  $('#edit--popup input[name="id"]').val();
+        var title = $('#edit--popup input[name="title"]').val();
+        var files = $('#edit--popup input[name="image"]')[0].files;
+        var text = $('#edit--popup textarea[name="text"]').val();
+
+        fd.append('id',id);
+        fd.append('title',title);
+        fd.append('file',files[0]);
+        fd.append('text',text);
+        fd.append('action','update_popup');
+
+
+        $.ajax({
+            url: ajaxurl,
+            type: 'post',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function(response){
             $('tbody').empty();
             $('tbody').append(response);
             $('#edit--popup input[name="id"]').val('');
@@ -150,8 +163,9 @@ jQuery(document).ready(function($) {
             $('#edit--popup input[name="image"]').val('');
             $('#edit--popup textarea[name="text"]').val('')
             $('.edit--modal').toggleClass('show');
-        });
-    }
+        }
+    });
+}
     function deletePopups(ids) {
         var data = {
             'action': 'delete_popups',
