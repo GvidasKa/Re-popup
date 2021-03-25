@@ -1,0 +1,29 @@
+.exit--popup--wrapp{
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    display: none;
+    opacity:0;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    background: rgba(0,0,0,0.5);
+    transition: all .5s;
+}
+.exit--popup--wrapp .exit--popup{
+    background: #FFF;
+    padding: 30px;
+    border-radius: 4px;
+    position:relative;
+}
+.exit--popup--wrapp .exit--popup img{
+    max-height: 200px;
+}
+.exit--popup--wrapp .exit--popup .close--popup{
+    position: absolute;
+    width: 15px;
+    right: 15px;
+    top: 15px;
+    cursor:pointer;
+}

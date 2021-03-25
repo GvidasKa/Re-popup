@@ -14,11 +14,13 @@ $results = $wpdb->get_results("SELECT * FROM $table_name");
                 <input type="text" name="title">
                 <label for="text">Text</label>
                 <textarea name="text"></textarea>
+                <label for="status">Activate</label>
+                <input type="checkbox" name="status">
                 <input type="submit" name="submit" value="Submit" />
             </div>
             <div class="popup--image">
-                <img src="/repopup/wp-content/plugins/re-popup/assets/images/remove--image.png" class="remove--image">
-                <img src="/repopup/wp-content/plugins/re-popup/assets/images/upload-icon.png" class="upload--preview">
+                <img src="/wp-content/plugins/re-popup/assets/images/remove--image.png" class="remove--image">
+                <img src="/wp-content/plugins/re-popup/assets/images/upload-icon.png" class="upload--preview">
                 <input type="file" accept="image/*"  name="image">
                 <p>Drop files to upload</p>
             </div>
@@ -35,11 +37,13 @@ $results = $wpdb->get_results("SELECT * FROM $table_name");
                 <input type="text" name="title">
                 <label for="text">Text</label>
                 <textarea name="text"></textarea>
+                <label for="status">Active</label>
+                <input type="checkbox" name="status">
                 <input type="submit" name="submit" value="Submit" />
             </div>
             <div class="popup--image">
-                <img src="/repopup/wp-content/plugins/re-popup/assets/images/remove--image.png" class="remove--image">
-                <img src="/repopup/wp-content/plugins/re-popup/assets/images/upload-icon.png" class="upload--preview">
+                <img src="/wp-content/plugins/re-popup/assets/images/remove--image.png" class="remove--image">
+                <img src="/wp-content/plugins/re-popup/assets/images/upload-icon.png" class="upload--preview">
                 <input type="file" accept="image/*"  name="image">
                 <p>Drop files to upload</p>
             </div>
@@ -52,8 +56,9 @@ $results = $wpdb->get_results("SELECT * FROM $table_name");
     <thead>
         <tr>
             <th></th>
-            <th>id</th>
-            <th>title</th>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Status</th>
             <th></th>
         </tr>
     </thead>
@@ -61,9 +66,10 @@ $results = $wpdb->get_results("SELECT * FROM $table_name");
     <?php
     foreach($results as $result){
         echo "<tr>
-            <td><input type=\"checkbox\" tableid='{$result->ID}' class='delete'></td>
+            <td><input type=\"checkbox\"  tableid='{$result->ID}' class='delete'></td>
             <td>{$result->ID}</td>
             <td>{$result->title}</td>
+            <td "; if($result->status == 1){echo 'class="status--active"';} else{echo 'class="status--disabled"';} echo ">"; if($result->status == 1){echo 'Active';} else {echo 'Disabled';} echo "</td>
             <td><button tableid='{$result->ID}'>Edit</button></td>
         </tr>";
     }?>

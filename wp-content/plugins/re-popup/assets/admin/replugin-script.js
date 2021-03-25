@@ -22,7 +22,7 @@ jQuery(document).ready(function($) {
     $(".popup--image .remove--image").on('click',function() {
         $(this).parent().css('border','4px dashed #b4b9be');
         $(this).parent().find('input').val('');
-        $(this).parent().find('.upload--preview').attr('src','/repopup/wp-content/plugins/re-popup/assets/images/upload-icon.png');
+        $(this).parent().find('.upload--preview').attr('src','/wp-content/plugins/re-popup/assets/images/upload-icon.png');
         $(this).parent().find('p').css('display','block');
         $(this).css('display','none');
     });
@@ -46,8 +46,7 @@ jQuery(document).ready(function($) {
 
     // CRUD Functions and function callers
     var DeleteIds = [];
-    $('.popups--table .delete').each(function(){
-        $(document).on('change',this, function(){
+        $(document).on('change','.popups--table .delete', function(){
             DeleteIds = [];
             $('.popups--table .delete').each(function(){
                 if($(this).prop("checked") == true){
@@ -61,7 +60,6 @@ jQuery(document).ready(function($) {
 
             }
         });
-    });
     $('.delete--popup').on('click', function(){
         deletePopups(DeleteIds);
     });
@@ -86,10 +84,18 @@ jQuery(document).ready(function($) {
         var title = $('#create--popup input[name="title"]').val();
         var files = $('#create--popup input[name="image"]')[0].files;
         var text = $('#create--popup textarea[name="text"]').val();
+        var status = 0;
+
+        if($('#create--popup input[name="status"]').is(":checked")){
+            status = 1;
+        } else {
+            status = 0;
+        }
 
         fd.append('title',title);
         fd.append('file',files[0]);
         fd.append('text',text);
+        fd.append('status',status);
         fd.append('action','create_popup');
 
         $.ajax({
@@ -99,13 +105,14 @@ jQuery(document).ready(function($) {
             contentType: false,
             processData: false,
             success: function(response){
-                $('#create--popup .upload--preview').attr('src', '/repopup/wp-content/plugins/re-popup/assets/images/upload-icon.png');
+                $('#create--popup .upload--preview').attr('src', '/wp-content/plugins/re-popup/assets/images/upload-icon.png');
                 $('#create--popup .popup--image p').css('display','block');
                 $('tbody').empty();
                 $('tbody').append(response);
                 $('#create--popup input[name="title"]').val('');
                 $('#create--popup input[name="image"]').val('');
-                $('#create--popup textarea[name="text"]').val('')
+                $('#create--popup textarea[name="text"]').val('');
+                $('#create--popup input[name="status"]').prop( "checked", false );
                 $('.create--modal').toggleClass('show');
             },
         });
@@ -119,7 +126,7 @@ jQuery(document).ready(function($) {
         };
         // We can also pass the url value separately from ajaxurl for front end AJAX implementations
         jQuery.post(ajaxurl, data, function (response) {
-            console.log(JSON.parse(response))
+
             response= JSON.parse(response);
             $('#edit--popup input[name="id"]').val(response['ID']);
             $('#edit--popup input[name="title"]').val(response['title']);
@@ -130,7 +137,14 @@ jQuery(document).ready(function($) {
                 $('#edit--popup .popup--image').css('border','none');
                 $('#edit--popup .popup--image .remove--image').css('display','block');
             }
-            $('#edit--popup textarea[name="text"]').val(response['text'])
+            $('#edit--popup textarea[name="text"]').val(response['text']);
+
+            if(response['status'] == 1) {
+                $('#edit--popup input[name="status"]').prop( "checked", true );;
+            } else {
+                $('#edit--popup input[name="status"]').prop( "checked", false );;
+            }
+
             $('.edit--modal').toggleClass('show');
         });
     }
@@ -141,11 +155,19 @@ jQuery(document).ready(function($) {
         var title = $('#edit--popup input[name="title"]').val();
         var files = $('#edit--popup input[name="image"]')[0].files;
         var text = $('#edit--popup textarea[name="text"]').val();
+        var status = 0;
+
+        if($('#edit--popup input[name="status"]').is(":checked")){
+            status = 1;
+        } else {
+            status = 0;
+        }
 
         fd.append('id',id);
         fd.append('title',title);
         fd.append('file',files[0]);
         fd.append('text',text);
+        fd.append('status',status);
         fd.append('action','update_popup');
 
 
@@ -161,7 +183,8 @@ jQuery(document).ready(function($) {
             $('#edit--popup input[name="id"]').val('');
             $('#edit--popup input[name="title"]').val('');
             $('#edit--popup input[name="image"]').val('');
-            $('#edit--popup textarea[name="text"]').val('')
+            $('#edit--popup textarea[name="text"]').val('');
+            $('#edit--popup input[name="status"]').prop( "checked", false );;
             $('.edit--modal').toggleClass('show');
         }
     });

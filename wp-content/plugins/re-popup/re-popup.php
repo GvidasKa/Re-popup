@@ -66,6 +66,7 @@ if(!class_exists('RePopup')) {
         }
         function public_enqueue()
         {
+            wp_enqueue_style('repopup', plugins_url('/assets/public/repopup.css', __FILE__));
             wp_enqueue_script('repopup', plugins_url('/assets/public/repopup.js', __FILE__ ), array ( 'jquery' ), '1.0');
         }
     }
@@ -138,13 +139,21 @@ if(!class_exists('RePopup')) {
                 wp_update_attachment_metadata($upload_id, wp_generate_attachment_metadata($upload_id, $new_file_path));
 
             }
-            $pathToImage = substr($new_file_path, strpos($new_file_path, "/repopup") + 0);
-            $data = array( 'title' => $_POST['title'], 'image' => $pathToImage, 'text' => $_POST['text']);
+            $pathToImage = substr($new_file_path, strpos($new_file_path, "/wp-content") + 0);
+            $data = array( 'title' => $_POST['title'], 'image' => $pathToImage, 'text' => $_POST['text'], 'status' => $_POST['status']);
         } else{
-            $data = array( 'title' => $_POST['title'], 'image' => '', 'text' => $_POST['text']);
+            $data = array( 'title' => $_POST['title'], 'image' => '', 'text' => $_POST['text'], 'status' => $_POST['status']);
         }
 
-        $format = array('%s', '%s','%s');
+        $format = array('%s', '%s','%s','%d');
+
+        if($_POST['status'] == 1){
+            $results = $wpdb->get_results("SELECT * FROM $table_name");
+            foreach($results as $result) {
+                $wpdb->update($table_name, array('id' => $result->ID, 'status' => 0), array('id' => $result->ID));
+            }
+        }
+
         $wpdb->insert($table_name, $data, $format);
 
         $results = $wpdb->get_results("SELECT * FROM $table_name");
@@ -153,6 +162,7 @@ if(!class_exists('RePopup')) {
             <td><input type=\"checkbox\"  tableid='{$result->ID}' class='delete'></td>
             <td>{$result->ID}</td>
             <td>{$result->title}</td>
+            <td "; if($result->status == 1){echo 'class="status--active"';} else{echo 'class="status--disabled"';} echo ">"; if($result->status == 1){echo 'Active';} else {echo 'Disabled';} echo "</td>
             <td><button tableid='{$result->ID}'>Edit</button></td>
         </tr>";
         }
@@ -222,10 +232,22 @@ if(!class_exists('RePopup')) {
                 wp_update_attachment_metadata($upload_id, wp_generate_attachment_metadata($upload_id, $new_file_path));
 
             }
-            $pathToImage = substr($new_file_path, strpos($new_file_path, "/repopup") + 0);
-            $wpdb->update($table_name, array('id'=>$_POST['id'], 'title'=>$_POST['title'], 'image'=>$pathToImage, 'text'=>$_POST['text']), array('id'=>$_POST['id']));
+            $pathToImage = substr($new_file_path, strpos($new_file_path, "/wp-content") + 0);
+            if($_POST['status'] == 1){
+                $results = $wpdb->get_results("SELECT * FROM $table_name");
+                foreach($results as $result) {
+                    $wpdb->update($table_name, array('id' => $result->ID, 'status' => 0), array('id' => $result->ID));
+                }
+            }
+            $wpdb->update($table_name, array('id'=>$_POST['id'], 'title'=>$_POST['title'], 'image'=>$pathToImage, 'text'=>$_POST['text'], 'status' => $_POST['status']), array('id'=>$_POST['id']));
         } else{
-            $wpdb->update($table_name, array('id'=>$_POST['id'], 'title'=>$_POST['title'], 'image'=>'', 'text'=>$_POST['text']), array('id'=>$_POST['id']));
+            if($_POST['status'] == 1){
+                $results = $wpdb->get_results("SELECT * FROM $table_name");
+                foreach($results as $result) {
+                    $wpdb->update($table_name, array('id' => $result->ID, 'status' => 0), array('id' => $result->ID));
+                }
+            }
+            $wpdb->update($table_name, array('id'=>$_POST['id'], 'title'=>$_POST['title'], 'image'=>'', 'text'=>$_POST['text'], 'status' => $_POST['status']), array('id'=>$_POST['id']));
         }
 
         $results = $wpdb->get_results("SELECT * FROM $table_name");
@@ -234,6 +256,7 @@ if(!class_exists('RePopup')) {
             <td><input type=\"checkbox\"  tableid='{$result->ID}' class='delete'></td>
             <td>{$result->ID}</td>
             <td>{$result->title}</td>
+            <td "; if($result->status == 1){echo 'class="status--active"';} else{echo 'class="status--disabled"';} echo ">"; if($result->status == 1){echo 'Active';} else {echo 'Disabled';} echo "</td>
             <td><button tableid='{$result->ID}'>Edit</button></td>
         </tr>";
         }
@@ -256,6 +279,7 @@ if(!class_exists('RePopup')) {
             <td><input type=\"checkbox\"  tableid='{$result->ID}' class='delete'></td>
             <td>{$result->ID}</td>
             <td>{$result->title}</td>
+            <td "; if($result->status == 1){echo 'class="status--active"';} else{echo 'class="status--disabled"';} echo ">"; if($result->status == 1){echo 'Active';} else {echo 'Disabled';} echo "</td>
             <td><button tableid='{$result->ID}'>Edit</button></td>
         </tr>";
         }
@@ -272,12 +296,22 @@ if(!class_exists('RePopup')) {
 
             $table_name = $table_prefix . 'repopup';
 
-            $results = $wpdb->get_row("SELECT * FROM $table_name WHERE ID = 1");
-            echo "<div class='exit--popup'>
-                    <img src='$results->image'>
-                    <h2>$results->title</h2>
-                    <p>$results->text</p>
-                  </div>";
+            $results = $wpdb->get_row("SELECT * FROM $table_name WHERE status = 1");
+            echo "<div class='exit--popup--wrapp'>
+                    <div class='exit--popup'>
+                        <img src=\"/wp-content/plugins/re-popup/assets/images/remove--image.png\" class=\"close--popup\">
+                    ";
+            if($results->image != ''){
+                echo "<img src='$results->image'>";
+            }
+            if($results->title != ''){
+                echo "<h2>$results->title</h2>";
+            }
+            if($results->text != ''){
+                echo " <p>$results->text</p>";
+            }
+
+            echo "</div></div>";
         }
 
 

@@ -19,6 +19,7 @@ class RePopupActivate
              title VARCHAR(1000) NOT NULL,
              image VARCHAR(1000) NOT NULL,
              text VARCHAR(1000) NOT NULL,
+             status INT(1) NOT NULL,
              PRIMARY KEY (ID));
             $charset_collate";
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
